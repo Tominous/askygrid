@@ -81,7 +81,7 @@ public class TinyDB {
         try {
             File oldDB = new File(plugin.getDataFolder(), "name-uuid.txt");
             File newDB = new File(plugin.getDataFolder(), "name-uuid-new.txt");
-            //File backup = new File(plugin.getDataFolder(), "name-uuid.bak");
+            File backup = new File(plugin.getDataFolder(), "name-uuid.bak");
             try(PrintWriter out = new PrintWriter(newDB)) {
                 // Write the newest entries at the top
                 for (Entry<String, UUID> entry: treeMap.entrySet()) {
@@ -150,7 +150,7 @@ public class TinyDB {
                         try {
                             // Get UUID
                             String uuid = file.getName().substring(0, file.getName().length() - 4);
-                            //System.out.println("DEBUG: UUID is " + uuid);
+                            System.out.println("DEBUG: UUID is " + uuid);
                             final UUID playerUUID = UUID.fromString(uuid);
                             // Get the player's name
                             Scanner scanner = new Scanner(file);
@@ -159,7 +159,7 @@ public class TinyDB {
                                 if (lineFromFile.contains("playerName:")) { 
                                     // Check against potentialUnowned list
                                     String playerName = lineFromFile.substring(lineFromFile.indexOf(' ')).trim();
-                                    //System.out.println("DEBUG: Player name is " + playerName);
+                                    System.out.println("DEBUG: Player name is " + playerName);
                                     treeMap.put(playerName.toLowerCase(), playerUUID);
                                     break;
                                 }
@@ -167,7 +167,7 @@ public class TinyDB {
                             scanner.close();
                         } catch (Exception ex) {
                             System.err.println("[ASkyBlock/AcidIsland]: Problem reading " + file.getName() + " skipping...");
-                            //ex.printStackTrace();
+                            ex.printStackTrace();
                         }
                     }
                     // Save files
@@ -208,7 +208,7 @@ public class TinyDB {
     public UUID getPlayerUUID(String playerName) {
         // Try cache
         if (treeMap.containsKey(playerName.toLowerCase())) {
-            //plugin.getLogger().info("DEBUG: found in UUID cache");
+            plugin.getLogger().info("DEBUG: found in UUID cache");
             return treeMap.get(playerName.toLowerCase());
         }
         // Names and UUID's are stored in line pairs.
@@ -225,7 +225,7 @@ public class TinyDB {
             UUID result = UUID.fromString(uuid);
             // Add to cache
             treeMap.put(playerName.toLowerCase(), result);
-            //plugin.getLogger().info("DEBUG: found in UUID database");
+            plugin.getLogger().info("DEBUG: found in UUID database");
             return result;
         } catch (Exception e) {
             // TODO Auto-generated catch block
