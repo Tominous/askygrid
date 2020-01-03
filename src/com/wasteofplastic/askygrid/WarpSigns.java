@@ -53,7 +53,7 @@ public class WarpSigns implements Listener {
     private HashMap<UUID, Object> warpList = new HashMap<UUID, Object>();
     // Where warps are stored
     private YamlConfiguration welcomeWarps;
-    //private HashMap<UUID, Rectangle2D> protectionArea = new HashMap<UUID, Rectangle2D>();
+    private HashMap<UUID, Rectangle2D> protectionArea = new HashMap<UUID, Rectangle2D>();
 
     /**
      * @param plugin
@@ -115,15 +115,15 @@ public class WarpSigns implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     public void onSignWarpCreate(SignChangeEvent e) {
-	//plugin.getLogger().info("DEBUG: SignChangeEvent called");
+	plugin.getLogger().info("DEBUG: SignChangeEvent called");
 	String title = e.getLine(0);
 	Player player = e.getPlayer();
 	if (player.getWorld().equals(ASkyGrid.getGridWorld())) {
-	    //plugin.getLogger().info("DEBUG: Correct world");
+	    plugin.getLogger().info("DEBUG: Correct world");
 	    if (e.getBlock().getType().equals(Material.SIGN_POST) || e.getBlock().getType().equals(Material.WALL_SIGN)) {
-		//plugin.getLogger().info("DEBUG: The first line of the sign says " + title);
+		plugin.getLogger().info("DEBUG: The first line of the sign says " + title);
 		if (title.equalsIgnoreCase(plugin.myLocale().warpswelcomeLine)) {
-		    //plugin.getLogger().info("DEBUG: Welcome sign detected");
+		    plugin.getLogger().info("DEBUG: Welcome sign detected");
 		    // Welcome sign detected - check permissions
 		    if (!(VaultHelper.checkPerm(player, Settings.PERMPREFIX + "player.addwarp"))) {
 			player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).warpserrorNoPerm);
@@ -145,7 +145,7 @@ public class WarpSigns implements Listener {
 		    // Check if the player already has a sign
 		    final Location oldSignLoc = getWarp(player.getUniqueId());
 		    if (oldSignLoc == null) {
-			//plugin.getLogger().info("DEBUG: Player does not have a sign already");
+			plugin.getLogger().info("DEBUG: Player does not have a sign already");
 			// First time the sign has been placed or this is a new
 			// sign
 			if (addWarp(player, e.getBlock().getLocation())) {
@@ -165,19 +165,19 @@ public class WarpSigns implements Listener {
 			    }
 			}
 		    } else {
-			//plugin.getLogger().info("DEBUG: Player already has a Sign");
+			plugin.getLogger().info("DEBUG: Player already has a Sign");
 			// A sign already exists. Check if it still there and if
 			// so,
 			// deactivate it
 			Block oldSignBlock = oldSignLoc.getBlock();
 			if (oldSignBlock.getType().equals(Material.SIGN_POST) || oldSignBlock.getType().equals(Material.WALL_SIGN)) {
 			    // The block is still a sign
-			    //plugin.getLogger().info("DEBUG: The block is still a sign");
+			    plugin.getLogger().info("DEBUG: The block is still a sign");
 			    Sign oldSign = (Sign) oldSignBlock.getState();
 			    if (oldSign != null) {
-				//plugin.getLogger().info("DEBUG: Sign block is a sign");
+				plugin.getLogger().info("DEBUG: Sign block is a sign");
 				if (oldSign.getLine(0).equalsIgnoreCase(ChatColor.GREEN + plugin.myLocale().warpswelcomeLine)) {
-				    //plugin.getLogger().info("DEBUG: Old sign had a green welcome");
+				    plugin.getLogger().info("DEBUG: Old sign had a green welcome");
 				    oldSign.setLine(0, ChatColor.RED + plugin.myLocale().warpswelcomeLine);
 				    oldSign.update();
 				    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).warpsdeactivate);
@@ -209,18 +209,18 @@ public class WarpSigns implements Listener {
 	if (warpList == null || welcomeWarps == null) {
 	    return;
 	}
-	//plugin.getLogger().info("Saving warps...");
+	plugin.getLogger().info("Saving warps...");
 	final HashMap<String, Object> warps = new HashMap<String, Object>();
 	for (UUID p : warpList.keySet()) {
 	    warps.put(p.toString(), warpList.get(p));
 	}
 	welcomeWarps.set("warps", warps);
 	// Save the protection areas
-	/*
+	
 	for (UUID p: protectionArea.keySet()) {
 	    warps.put(p.toString(), protectionArea.get(p));
 	}
-	 */
+	 
 	welcomeWarps.set("protections", warps);
 	Util.saveYamlFile(welcomeWarps, "warps.yml");
 	// Update the warp panel - needs to be done 1 tick later so that the sign
@@ -236,7 +236,7 @@ public class WarpSigns implements Listener {
 		    }});
 	    }
 	}
-	//plugin.getLogger().info("End of saving warps");
+	plugin.getLogger().info("End of saving warps");
     }
 
     /**
@@ -258,13 +258,13 @@ public class WarpSigns implements Listener {
 	    try {
 		UUID playerUUID = UUID.fromString(s);
 		Location l = Util.getLocationString((String) temp.get(s));
-		//plugin.getLogger().info("DEBUG: Loading warp at " + l);
+		plugin.getLogger().info("DEBUG: Loading warp at " + l);
 		Block b = l.getBlock();
 		// Check that a warp sign is still there
 		if (b.getType().equals(Material.SIGN_POST) || b.getType().equals(Material.WALL_SIGN)) {
 		    warpList.put(playerUUID, temp.get(s));
 		    // Get the protection area
-		    /*
+		    
 		    try {
 			Rectangle2D rectangle = (Rectangle2D) welcomeWarps.get("protections." + s);
 			protectionArea.put(playerUUID, rectangle);
@@ -272,7 +272,7 @@ public class WarpSigns implements Listener {
 			plugin.getLogger().warning("Could not load protection for warp at location " + (String) temp.get(s) + ". Using default protection size");
 			// TODO: set default
 			e.printStackTrace();
-		    }*/
+		    }
 		} else {
 		    plugin.getLogger().warning("Warp at location " + (String) temp.get(s) + " has no sign - removing.");
 		    if (plugin.getGguard() != null) {
@@ -300,7 +300,7 @@ public class WarpSigns implements Listener {
 	}
 	warpList.put(player.getUniqueId(), locS);
 	// Put the protection
-	//protectionArea.put(player.getUniqueId(), getProtectionRectangle(player, loc));
+	protectionArea.put(player.getUniqueId(), getProtectionRectangle(player, loc));
 	saveWarpList(true);
 	return true;
     }
@@ -311,7 +311,7 @@ public class WarpSigns implements Listener {
      * @param loc
      * @return rectangle
      */
-    /*
+    
     private Rectangle2D getProtectionRectangle(Player player, Location loc) {
 	// Get the distance
 	int maxSize = Settings.claim_protectionRange;
@@ -333,7 +333,7 @@ public class WarpSigns implements Listener {
 	double x = loc.getX() - maxSize;
 	double z = loc.getZ() - maxSize;
 	return new Rectangle2D.Double(x, z, maxSize * 2, maxSize * 2);
-    }*/
+    }
 
     /**
      * Removes a warp when the welcome sign is destroyed. Called by
